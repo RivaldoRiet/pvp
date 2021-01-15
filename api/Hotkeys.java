@@ -49,7 +49,7 @@ public Hotkeys(PvpPlugin plugin, ItemManager itemManager, PlayerGetter players) 
 
 public HotkeyListener[] get() {
 
-	return new HotkeyListener[] { spell, switcher, speccer };
+	return new HotkeyListener[] { spell, switcher, speccer, attackplayer };
 }
 
 /*
@@ -149,7 +149,7 @@ public void hotkeyPressed() {
 		switchByName("shield");
 		return;
 	}
-	
+
 	if (name.contains("scimitar") || name.contains("whip") || name.contains("rapier")) { // turn
 																							// on
 																							// piety
@@ -161,15 +161,17 @@ public void hotkeyPressed() {
 		// attackCurrentPlayer(); }
 	}
 	if (name.contains("crossbow") || name.contains("ballista") || name.contains("javelin")) {
-		System.out.println("YES"); // turn on rigour
+		System.out.println("YES"); // turn
+									// on
+									// rigour
 		useOffensiveRangePray();
 		switchItem(getItem(0), 0);
 		switchItem(getItem(4), 4);
 		switchItem(getItem(1), 1);
 		switchItem(getItem(5), 5);
-		
+
 		// attackCurrentPlayer(); }
-		
+
 	}
 	if (name.contains("staff") || name.contains("wand")) {
 		switchItem(getItem(0), 0);
@@ -216,14 +218,13 @@ private final HotkeyListener speccer = new HotkeyListener(() -> new Keybind(KeyE
 public void hotkeyPressed() {
 	int id = getItem(21);
 	ClientContext.instance().getClient().setSpellSelected(false);
-	
+
 	if (isSpecEquipped()) {
 		plugin.invokeMenuAction("Wield", "Wield", id, MenuAction.ITEM_SECOND_OPTION.getId(), 21, 9764864);
 		switchByName("shield");
 		return;
 	}
-	
-	
+
 	if (onehandMeleeWeapons.contains(id)) {
 		System.out.println("SPECCING HARD");
 		useOffensiveMeleePray();
@@ -256,56 +257,40 @@ public void hotkeyPressed() {
 }
 };
 
-private void useSpecialAttack()
-{
+private void useSpecialAttack() {
 	int specEnabled = client.getVar(VarPlayer.SPECIAL_ATTACK_ENABLED);
-	if(specEnabled == 0) {
+	if (specEnabled == 0) {
 		plugin.invokeMenuAction("Use", "<col=00ff00>Special Attack</col>", 1, MenuAction.CC_OP.getId(), -1, 38862884);
 	}
 }
 
-private void switchByName(String name)
-{
+private void switchByName(String name) {
 	final ItemContainer e = client.getItemContainer(InventoryID.INVENTORY);
 	Item item = getItemByName(name);
-	if (item != null)
-	{
-		if (e.contains(item.getId()))
-		{
+	if (item != null) {
+		if (e.contains(item.getId())) {
 			int slot = getItemBySlot(name);
 			switchItem(item.getId(), slot);
 		}
 	}
 }
 
-private int getItemBySlot(String name)
-{
+private int getItemBySlot(String name) {
 	final ItemContainer e = client.getItemContainer(InventoryID.INVENTORY);
-	if (e != null && e.getItems().length > 0)
-	{
-		for (int i = 0; i < e.getItems().length; i++)
-		{
+	if (e != null && e.getItems().length > 0) {
+		for (int i = 0; i < e.getItems().length; i++) {
 			final String in = getItemDefinition(e.getItems()[i].getId());
-			if (in.contains(name))
-			{
-				return i;
-			}
+			if (in.contains(name)) { return i; }
 		}
 	}
 	return -1;
 }
 
-
-private Item getItemByName(String name)
-{
+private Item getItemByName(String name) {
 	final ItemContainer e = client.getItemContainer(InventoryID.INVENTORY);
-	for (Item i : e.getItems())
-	{
+	for (Item i : e.getItems()) {
 		final String in = getItemDefinition(i.getId());
-		if (in.contains(name))
-		{
-			return i;
-		}
+		if (in.contains(name)) { return i; }
 	}
 	return null;
 }
@@ -319,46 +304,54 @@ public boolean isSpecEquipped() {
 	return false;
 }
 
-
 public void enablePrayer(Prayers prayer) {
 	if (ClientContext.instance().skills.level(Skills.PRAYER) == 0) return;
-	if (!ClientContext.instance().prayers.prayerActive(prayer)) MenuActions.invoke("Activate",
-			"<col=ff9040>" + prayer.name().toString().replaceAll(" ", "_").toLowerCase() + "</col>", -1,
-			MenuAction.CC_OP.getId(), 1, prayer.getWidgetInfo().getId());
+	if (!ClientContext.instance().prayers.prayerActive(prayer))
+		MenuActions.invoke("Activate", "<col=ff9040>" + prayer.name().toString().replaceAll(" ", "_").toLowerCase() + "</col>",
+				-1, MenuAction.CC_OP.getId(), 1, prayer.getWidgetInfo().getId());
 
 }
 
+private final HotkeyListener attackplayer = new HotkeyListener(() -> new Keybind(KeyEvent.VK_F10, 0)) {
 
-/*
- * 
- * private final HotkeyListener attackplayer = new HotkeyListener(() -> new
- * Keybind(KeyEvent.VK_F10, 0)) {
- * 
- * @Override public void hotkeyPressed() { if (config.useManual()) {
- * switchToWhip(); } else { switchToRobot(); } } };
- * 
- * 
- * 
- * private final HotkeyListener walkhere = new HotkeyListener(() -> new
- * Keybind(KeyEvent.VK_F2, 0)) {
- * 
- * @Override public void hotkeyPressed() { // // walk(); } };
- * 
- * private final HotkeyListener barrage = new HotkeyListener(() -> new
- * Keybind(KeyEvent.VK_F4, 0)) {
- * 
- * @Override public void hotkeyPressed() { switchByName("guthix"); useAugury();
- * castBarrage(); } };
- * 
- * 
- * 
- * 
- * 
- * private final HotkeyListener whipswitch = new HotkeyListener(() -> new
- * Keybind(KeyEvent.VK_F3, 0)) {
- * 
- * @Override public void hotkeyPressed() { if (config.useManual()) {
- * switchToRobot(); } else { switchToWhip(); } } };
- * 
- */
+@Override
+public void hotkeyPressed() {
+	switchToWhip();
+}
+};
+
+private void switchToWhip() {
+	final ItemContainer e = client.getItemContainer(InventoryID.INVENTORY);
+	final String name = getItemDefinition(getItem(2));
+
+	if (name.contains("whip")) {
+		useOffensiveMeleePray();
+		switchByName("whip");
+		switchByName("defender");
+		switchByName("infernal");
+	}
+
+	if (name.contains("rapier")) {
+		useOffensiveMeleePray();
+		switchByName("rapier");
+		switchByName("defender");
+		switchByName("infernal");
+	}
+
+	if (name.contains("crossbow") || name.contains("javelin")) {
+		useOffensiveRangePray();
+		switchByName("crossbow");
+		switchByName("shield");
+		switchByName("guthix");
+	}
+
+	if (name.contains("ballista")) {
+		useOffensiveRangePray();
+		switchByName("ballista");
+		switchByName("guthix");
+	}
+
+	players.attackCurrentPlayer();
+}
+
 }
