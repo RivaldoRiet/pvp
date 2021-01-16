@@ -316,6 +316,13 @@ private final HotkeyListener attackplayer = new HotkeyListener(() -> new Keybind
 
 @Override
 public void hotkeyPressed() {
+	if (isSpecEquipped()) {
+		int id = getItem(21);
+		plugin.invokeMenuAction("Wield", "Wield", id, MenuAction.ITEM_SECOND_OPTION.getId(), 21, 9764864);
+		switchByName("shield");
+		return;
+	}
+
 	switchToWhip();
 }
 };

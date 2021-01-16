@@ -119,8 +119,9 @@ public class PlayerGetter {
 			 idx = getIndex(potentialPlayersAttackingMe.get(0).getPlayer());
 		}
 		if (level > 0) {
+			System.out.println("Attacking player: " + "<col=ffffff>" + name + "<col=ff00>  (level-" + level + " ------ idx: " + idx );
 			plugin.invokeMenuAction("Fight", "<col=ffffff>" + name + "<col=ff00>  (level-" + level + ")", idx,
-					MenuAction.PLAYER_SECOND_OPTION.getId(), 0, 0);
+					MenuAction.PLAYER_FIRST_OPTION.getId(), 0, 0);
 		}
 	}
 	
