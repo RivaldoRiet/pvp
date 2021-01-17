@@ -16,6 +16,7 @@ import javax.inject.Singleton;
 
 import com.google.inject.Provides;
 
+import api.MenuActions;
 import api.Tasks;
 import api.Variables;
 import api.threads.PrayerObserver;
@@ -121,18 +122,18 @@ public class PvpPlugin extends Plugin {
 		return configManager.getConfig(PvpConfig.class);
 	}
 
-	@Subscribe
+	/*	@Subscribe
 	private void onMenuOptionClicked(MenuOptionClicked m) {
 		System.out.println(m.toString());
 
-/*		System.out.println("Cached amount: " + client.getCachedPlayers().length);
+	System.out.println("Cached amount: " + client.getCachedPlayers().length);
 		for (Player p : client.getCachedPlayers()) {
 			if (p != null) {
 				System.out.println("index: " + getIndex(p));
 			}
-		} */
+		} 
 	}
-	/*
+	
 	private int getIndex(Player p)
 	{
 		for (int i = 0; i < client.getCachedPlayers().length; i++) {
@@ -187,7 +188,7 @@ public class PvpPlugin extends Plugin {
 			}
 		});
 		prayerObserver.start();
-		Variables.USE_PRAYER = true;
+	//	Variables.USE_PRAYER = true;
 	}
 
 	@Override
@@ -237,17 +238,29 @@ public class PvpPlugin extends Plugin {
 			switch (WeaponType.checkWeaponOnPlayer(client, player)) {
 				case WEAPON_MELEE:
 					if (!client.isPrayerActive(Prayer.PROTECT_FROM_MELEE)) {
-						handlePray(1);
+						if (this.getCurrPlayer() != null) {
+							handlePray(1);
+						} 
+							//handlePrayThread(1);
+						
 					}
 					break;
 				case WEAPON_MAGIC:
 					if (!client.isPrayerActive(Prayer.PROTECT_FROM_MAGIC)) {
-						handlePray(2);
+						if (this.getCurrPlayer() != null) {
+							handlePray(2);
+						} 
+							//handlePrayThread(2);
+						
 					}
 					break;
 				case WEAPON_RANGED:
 					if (!client.isPrayerActive(Prayer.PROTECT_FROM_MISSILES)) {
-						handlePray(3);
+						if (this.getCurrPlayer() != null) {
+							handlePray(3);
+						} 
+							//handlePrayThread(3);
+						
 					}
 					break;
 				default:
@@ -256,21 +269,49 @@ public class PvpPlugin extends Plugin {
 		}
 	}
 	
-
 	private void handlePray(int id) {
 		if (id == 1 && lastId != id) {
-			Tasks.getSkill().addPrayer(Prayers.PROTECT_FROM_MELEE);
+			Variables.USE_PRAYER = false;
+			//Tasks.getSkill().addPrayer(Prayers.PROTECT_FROM_MELEE);
+			invokeMenuAction("Activate", "<col=ff9040>Protect from Melee</col>", 1 , MenuAction.CC_OP.getId(), -1, WidgetInfo.PRAYER_PROTECT_FROM_MELEE.getId());
 			lastId = id;
 		}
 
 		if (id == 2 && lastId != id) {
-			Tasks.getSkill().addPrayer(Prayers.PROTECT_FROM_MAGIC);
+			Variables.USE_PRAYER = false;
+			invokeMenuAction("Activate", "<col=ff9040>Protect from Magic</col>", 1 , MenuAction.CC_OP.getId(), -1, WidgetInfo.PRAYER_PROTECT_FROM_MAGIC.getId() );
+			
+			//Tasks.getSkill().addPrayer(Prayers.PROTECT_FROM_MAGIC);
 			lastId = id;
 		}
 
 		if (id == 3 && lastId != id) {
-			Tasks.getSkill().addPrayer(Prayers.PROTECT_FROM_MISSILES);
+			Variables.USE_PRAYER = false;
+			invokeMenuAction("Activate", "<col=ff9040>Protect from Missiles</col>", 1 , MenuAction.CC_OP.getId(), -1, WidgetInfo.PRAYER_PROTECT_FROM_MISSILES.getId() );
+			
+			//Tasks.getSkill().addPrayer(Prayers.PROTECT_FROM_MISSILES);
 			lastId = id;
+		}
+	}
+	
+
+	private void handlePrayThread(int id) {
+		if (id == 1) {
+			Variables.USE_PRAYER = true;
+			Tasks.getSkill().addPrayer(Prayers.PROTECT_FROM_MELEE);
+			//lastId = id;
+		}
+
+		if (id == 2) {
+			Variables.USE_PRAYER = true;
+			Tasks.getSkill().addPrayer(Prayers.PROTECT_FROM_MAGIC);
+			//lastId = id;
+		}
+
+		if (id == 3) {
+			Variables.USE_PRAYER = true;
+			Tasks.getSkill().addPrayer(Prayers.PROTECT_FROM_MISSILES);
+			//lastId = id;
 		}
 	}
 	
