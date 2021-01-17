@@ -29,6 +29,7 @@ import net.runelite.api.SpriteID;
 import net.runelite.api.events.AnimationChanged;
 import net.runelite.api.events.ChatMessage;
 import net.runelite.api.events.GameStateChanged;
+import net.runelite.api.events.GameTick;
 import net.runelite.api.events.InteractingChanged;
 import net.runelite.api.events.MenuOptionClicked;
 import net.runelite.api.events.PlayerDespawned;
@@ -52,6 +53,7 @@ import net.runelite.client.plugins.pvp.api.PlayerGetter;
 import net.runelite.client.plugins.pvp.api.Switches;
 import net.runelite.client.ui.overlay.OverlayManager;
 import net.runelite.client.util.ImageUtil;
+import simple.hooks.filters.SimplePrayers.Prayers;
 import simple.robot.api.ClientContext;
 
 @PluginDescriptor(name = "Pvp", description = "Use plugin in PvP situations for best results!!", tags = { "highlight", "pvp",
@@ -110,7 +112,7 @@ public class PvpPlugin extends Plugin {
 	private Hotkeys hotkeys;
 	
 	private PrayerObserver prayerObserver = null;
-
+	private int lastId = 0;
 	// @Inject
 	// private BotUtils utils;
 
@@ -217,6 +219,66 @@ public class PvpPlugin extends Plugin {
 		}
 	}
 
+	private Player getCurrPlayer() {
+		if (getPlayers().getPlayersAttackingMe() != null && getPlayers().getPlayersAttackingMe().size() > 0) {
+			return getPlayers().getPlayersAttackingMe().get(0).getPlayer();
+		}
+		if (getPlayers().getPlayersAttackingMe() != null && getPlayers().getPlayersAttackingMe().size() <= 0
+				&& getPlayers().getPotentialPlayersAttackingMe() != null
+				&& getPlayers().getPotentialPlayersAttackingMe().size() > 0) {
+			return getPlayers().getPotentialPlayersAttackingMe().get(0).getPlayer();
+		}
+		return null;
+	}
+
+	private void readPrayer() {
+		Player player = getCurrPlayer();
+		if (player != null) {
+			switch (WeaponType.checkWeaponOnPlayer(client, player)) {
+				case WEAPON_MELEE:
+					if (!client.isPrayerActive(Prayer.PROTECT_FROM_MELEE)) {
+						handlePray(1);
+					}
+					break;
+				case WEAPON_MAGIC:
+					if (!client.isPrayerActive(Prayer.PROTECT_FROM_MAGIC)) {
+						handlePray(2);
+					}
+					break;
+				case WEAPON_RANGED:
+					if (!client.isPrayerActive(Prayer.PROTECT_FROM_MISSILES)) {
+						handlePray(3);
+					}
+					break;
+				default:
+					break;
+			}
+		}
+	}
+	
+
+	private void handlePray(int id) {
+		if (id == 1 && lastId != id) {
+			Tasks.getSkill().addPrayer(Prayers.PROTECT_FROM_MELEE);
+			lastId = id;
+		}
+
+		if (id == 2 && lastId != id) {
+			Tasks.getSkill().addPrayer(Prayers.PROTECT_FROM_MAGIC);
+			lastId = id;
+		}
+
+		if (id == 3 && lastId != id) {
+			Tasks.getSkill().addPrayer(Prayers.PROTECT_FROM_MISSILES);
+			lastId = id;
+		}
+	}
+	
+	@Subscribe
+	private void onGameTick(GameTick Event) {
+		readPrayer();
+	}
+	
 	@Subscribe
 	public void onChatMessage(ChatMessage event) {
 		if (event.getMessage().equals("<col=ef1020>You have been frozen!</col>")) {

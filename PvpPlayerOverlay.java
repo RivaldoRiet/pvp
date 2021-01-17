@@ -37,7 +37,6 @@ class PvpPlayerOverlay extends Overlay {
 	private final PvpPlugin plugin;
 	private final PvpConfig config;
 	private final Client client;
-	private int lastId = 0;
 	private int lastWep = 0;
 
 	@Inject
@@ -52,7 +51,6 @@ class PvpPlayerOverlay extends Overlay {
 
 	@Override
 	public Dimension render(Graphics2D g) {
-		readPrayer();
 		renderPotentialPlayers(g);
 		renderAttackingPlayers(g);
 		g.drawString("Debug", 7, 245);
@@ -148,66 +146,6 @@ class PvpPlayerOverlay extends Overlay {
 	private void renderTileUnderPlayer(Graphics2D graphics, Player player, Color color) {
 		Polygon poly = player.getCanvasTilePoly();
 		OverlayUtil.renderPolygon(graphics, poly, color);
-	}
-
-	private Player getCurrPlayer() {
-		if (plugin.getPlayers().getPlayersAttackingMe() != null && plugin.getPlayers().getPlayersAttackingMe().size() > 0) {
-			return plugin.getPlayers().getPlayersAttackingMe().get(0).getPlayer();
-		}
-		if (plugin.getPlayers().getPlayersAttackingMe() != null && plugin.getPlayers().getPlayersAttackingMe().size() <= 0
-				&& plugin.getPlayers().getPotentialPlayersAttackingMe() != null
-				&& plugin.getPlayers().getPotentialPlayersAttackingMe().size() > 0) {
-			return plugin.getPlayers().getPotentialPlayersAttackingMe().get(0).getPlayer();
-		}
-		return null;
-	}
-
-	private void readPrayer() {
-		Player player = getCurrPlayer();
-		if (player != null) {
-			switch (WeaponType.checkWeaponOnPlayer(client, player)) {
-				case WEAPON_MELEE:
-					if (!client.isPrayerActive(Prayer.PROTECT_FROM_MELEE)) {
-						handlePray(1);
-					}
-					break;
-				case WEAPON_MAGIC:
-					if (!client.isPrayerActive(Prayer.PROTECT_FROM_MAGIC)) {
-						handlePray(2);
-					}
-					break;
-				case WEAPON_RANGED:
-					if (!client.isPrayerActive(Prayer.PROTECT_FROM_MISSILES)) {
-						handlePray(3);
-					}
-					break;
-				default:
-					break;
-			}
-		}
-	}
-
-	private void handlePray(int id) {
-		if (id == 1 && lastId != id) {
-			Tasks.getSkill().addPrayer(Prayers.PROTECT_FROM_MELEE);
-			//plugin.invokeMenuAction("Activate", "<col=ff9040>Protect from Melee</col>", 1, MenuAction.CC_OP.getId(), -1,
-			//		WidgetInfo.PRAYER_PROTECT_FROM_MELEE.getId());
-			lastId = id;
-		}
-
-		if (id == 2 && lastId != id) {
-			Tasks.getSkill().addPrayer(Prayers.PROTECT_FROM_MAGIC);
-			//plugin.invokeMenuAction("Activate", "<col=ff9040>Protect from Magic</col>", 1, MenuAction.CC_OP.getId(), -1,
-			//		WidgetInfo.PRAYER_PROTECT_FROM_MAGIC.getId());
-			lastId = id;
-		}
-
-		if (id == 3 && lastId != id) {
-			Tasks.getSkill().addPrayer(Prayers.PROTECT_FROM_MISSILES);
-			//plugin.invokeMenuAction("Activate", "<col=ff9040>Protect from Missiles</col>", 1, MenuAction.CC_OP.getId(), -1,
-			//		WidgetInfo.PRAYER_PROTECT_FROM_MISSILES.getId());
-			lastId = id;
-		}
 	}
 
 	private void renderPrayAgainstOnPlayer(Graphics2D graphics, Player player, Color color) {
